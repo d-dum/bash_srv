@@ -60,9 +60,9 @@ function http_response {
 
     if [[ ${status} = "200 OK" ]]
     then
-        echo "${HTTP_HEAD} ${status}\r\nContent-Type: ${content_type}\r\n\r\n${body}"
+        echo -e "${HTTP_HEAD} ${status}\r\nContent-Type: ${content_type}\r\n\r\n${body}"
     else
-        echo "${HTTP_HEAD} ${status}\r\n\r\n\r\n${status}"
+        echo -e "${HTTP_HEAD} ${status}\r\n\r\n\r\n${status}"
     fi
 }
 
