@@ -99,7 +99,6 @@ function general_request_handler {
         done
     fi
 
-    echo "${JSON}"
     local parsed_headers=""
     parsed_headers=$(parse_headers headers[@])
     
@@ -112,8 +111,6 @@ function general_request_handler {
     else
         RESPONSE="HTTP/1.1 404 NotFound\r\n\r\n\r\nNot Found"
     fi
-
-    echo "${RESPONSE}"
 
     echo -e "${RESPONSE}" > response
 }

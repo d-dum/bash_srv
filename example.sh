@@ -11,7 +11,7 @@ function helloRequestHandler {
 }
 
 function helloGetRequestHandler {
-    resp=$(http_response "${2}" "text/html" "200")
+    resp=$(http_response "${2}" "application/json" "200")
     echo "${resp}"
 }
 
