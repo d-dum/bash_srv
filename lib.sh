@@ -42,7 +42,6 @@ function parse_headers {
 # $2 = content type
 # $3 = status
 function http_response {
-    # TODO: headers
     local HTTP_HEAD="HTTP/1.1"
     local body="${1}"
     local status="${3}"
@@ -51,11 +50,10 @@ function http_response {
         status="200"
     fi
 
-    # TODO: implement all status codes
     case "${status}" in
         "200") status="200 OK" ;;
         "404") status="404 NotFound" ;;
-            *) status="200 OK" 
+            *) status="${status}" ;;
     esac
 
     local content_type="${2}"
@@ -105,11 +103,6 @@ function general_request_handler {
     local parsed_headers=""
     parsed_headers=$(parse_headers headers[@])
     
-
-    # case "${REQUEST}" in
-    #     "GET /") RESPONSE="HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n</h1>PONG</h1>" ;;
-    #           *) RESPONSE="HTTP/1.1 404 NotFound\r\n\r\n\r\nNot Found" ;;
-    # esac
     local RESPONSE=""
 
     if [[ -n "${HTTP_HANDLERS[${REQUEST}]}" ]]
