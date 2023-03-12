@@ -90,7 +90,7 @@ function general_request_handler {
     done
 
     echo "REQUEST: ${REQUEST}"
-    if [[ ! -z "${CONTENT_LENGTH}" ]]
+    if [[ -n "${CONTENT_LENGTH}" ]]
     then
         echo "HERE"
         while read -r -n"${CONTENT_LENGTH}" -t1 body; do
