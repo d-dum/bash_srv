@@ -71,6 +71,7 @@ function general_request_handler {
     local REQUEST=""
     local CONTENT_LENGTH=""
     local JSON=""
+    local CONTENT_TYPE=""
     while read -r line; do
         echo "${line}"
         trline=$(echo "${line}" | tr -d '\r\n')
@@ -87,10 +88,14 @@ function general_request_handler {
         local CONTENT_LENGTH_REGEX='Content-Length:\s(.*?)'
         [[ "${trline}" =~ ${CONTENT_LENGTH_REGEX} ]] &&
             CONTENT_LENGTH=$(echo "${trline}" | sed -E "s/${CONTENT_LENGTH_REGEX}/\1/")
+        
+        local CONTENT_TYPE_REGEX='Content-Type:\s(.*?)'
+        [[ "${trline}" =~ ${CONTENT_TYPE_REGEX} ]] &&
+            CONTENT_TYPE=$(echo "${trline}" | sed -E "s/${CONTENT_TYPE_REGEX}/\1/")
     done
 
     echo "REQUEST: ${REQUEST}"
-    if [[ -n "${CONTENT_LENGTH}" ]]
+    if [[ -n "${CONTENT_LENGTH}" ]] && [[ "${CONTENT_TYPE}" = "application/json" ]]
     then
         echo "HERE"
         while read -r -n"${CONTENT_LENGTH}" -t1 body; do
