@@ -18,7 +18,7 @@ function add_handler {
 }
 
 function parse_headers {
-    declare -a argAry1=("${!1}")
+    local -a argAry1=("${!1}")
     local out_headers="{"
     local first=true
     IFS=": "
