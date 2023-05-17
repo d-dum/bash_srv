@@ -122,6 +122,7 @@ function general_request_handler {
 
 # $1 = port
 function start_server {
+    local LPORT=""
     if [[ "${1}" = "" ]] 
     then
         LPORT="3000"
