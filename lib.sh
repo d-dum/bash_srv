@@ -66,6 +66,54 @@ function http_response {
     fi
 }
 
+function detect_params {
+    local line="${1}"
+    local path_and_query="${line#* }"
+    
+    local has_parameters=false
+    if [[ "$path_and_query" == *'?'* ]]; then
+        has_parameters=true
+    fi
+
+    echo "${has_parameters}"
+}
+
+function extract_path {
+    local line="$1"
+
+    local method_and_path="${line%% *}"
+    local path="${line#* }"
+    path="${path%%\?*}"
+
+    echo "$method_and_path $path"
+}
+
+function parse_params {
+    local line="${1}"
+    
+    local path_and_query="${line#* }"
+    # local path="${path_and_query%%\*}"
+    local query_string="${path_and_query#*\?}"
+
+    IFS="&" read -ra params <<< "${query_string}"
+
+    local -A parameters=()
+    for param in "${params[@]}"; do
+        IFS="=" read -r parameter value <<< "${param}"
+
+        value=$(printf '%b' "${value//%/\\x}")
+        parameters["${parameter}"]="${value}"
+    done
+
+    local json_string="{"
+    for key in "${!parameters[@]}"; do
+        json_string+="\"$key\":\"${parameters[$key]}\","
+    done
+
+    json_string="${json_string%,}}"
+    echo "${json_string}"
+}
+
 function general_request_handler {
     local headers=()
     local REQUEST=""
@@ -97,7 +145,6 @@ function general_request_handler {
     echo "REQUEST: ${REQUEST}"
     if [[ -n "${CONTENT_LENGTH}" ]] && [[ "${CONTENT_TYPE}" = "application/json" ]]
     then
-        echo "HERE"
         while read -r -n"${CONTENT_LENGTH}" -t1 body; do
             JSON="${body}"
             break
@@ -108,11 +155,18 @@ function general_request_handler {
     parsed_headers=$(parse_headers headers[@])
     
     local RESPONSE=""
+    local PARAMS=""
+
+    if [[ $(detect_params "${REQUEST}") = "true" ]]
+    then
+        PARAMS=$(parse_params "${REQUEST}")
+        REQUEST=$(extract_path "${REQUEST}")
+    fi
 
     if [[ -n "${HTTP_HANDLERS[${REQUEST}]}" ]]
     then
         local handler="${HTTP_HANDLERS[${REQUEST}]}"
-        RESPONSE=$(eval "${handler} '${JSON}' '${parsed_headers}'")
+        RESPONSE=$(eval "${handler} '${JSON}' '${parsed_headers}' '${PARAMS}'")
     else
         RESPONSE="HTTP/1.1 404 NotFound\r\n\r\n\r\nNot Found"
     fi
